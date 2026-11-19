@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SL-1200 PRO // MacBook Trackpad Battle DJ Workstation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-chassis: #0a0b0e;
+            --bg-panel: #12141a;
+            --border-metal: #232732;
+            --accent-cyan: #06b6d4;
+            --accent-crimson: #f43f5e;
+            --accent-amber: #f59e0b;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-chassis);
+            color: #e2e8f0;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* Brushed Aluminum & Hardware Chassis */
+        .hardware-panel {
+            background: linear-gradient(180deg, #161922 0%, #0f1117 100%);
+            border: 1px solid #262b38;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+        .hardware-inset {
+            background: #08090d;
+            border: 1px solid #1e222d;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.85);
+        }
+
+        /* Custom Faders & Sliders */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            height: 6px;
+            background: #07080b;
+            border-radius: 999px;
+            border: 1px solid #262b38;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 18px;
+            width: 24px;
+            border-radius: 4px;
+            background: linear-gradient(180deg, #cbd5e1 0%, #64748b 100%);
+            border: 1px solid #f8fafc;
+            margin-top: -7px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.9);
+        }
+        /* Battle Crossfader Cap */
+        #crossfader::-webkit-slider-runnable-track {
+            height: 10px;
+            background: #050608;
+            border: 1px solid #334155;
+        }
+        #crossfader::-webkit-slider-thumb {
+            height: 30px;
+            width: 44px;
+            border-radius: 5px;
+            background: linear-gradient(180deg, #f43f5e 0%, #9f1239 100%);
+            border: 2px solid #ffe4e6;
+            margin-top: -11px;
+            box-shadow: 0 0 18px rgba(244, 63, 94, 0.7);
+        }
+
+        /* Active Pad Glows */
+        .pad-active {
+            transform: scale(0.96);
+            filter: brightness(1.35);
+        }
+        .kill-active {
+            background-color: #f43f5e !important;
+            color: #fff !important;
+            border-color: #fda4af !important;
+            box-shadow: 0 0 12px rgba(244, 63, 94, 0.7);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-2 md:p-3 bg-[radial-gradient(circle_at_top,_#161b26_0%,_#07080b_100%)]">
+
+    <!-- TOP MASTER HEADER -->
+    <header class="max-w-[1440px] w-full mx-auto hardware-panel rounded-2xl px-3.5 py-2.5 mb-2.5">
+        <div class="flex flex-col xl:flex-row items-center justify-between gap-2.5">
+            <!-- Brand & Audio Engine Status -->
+            <div class="flex items-center gap-3 w-full xl:w-auto justify-between xl:justify-start">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 via-blue-600 to-rose-600 flex items-center justify-center shadow-lg border border-white/15">
+                        <span class="font-mono font-black text-white text-sm tracking-tighter">SL</span>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="font-black text-sm md:text-base tracking-tight text-white">SL-1200 MK7 <span class="text-cyan-400">BATTLE DSP</span></h1>
+                            <span id="audio-status-badge" class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-amber-500/20 text-amber-400 border border-amber-500/40">DSP STANDBY (DOKUN)</span>
+                        </div>
+                        <p id="header-track-name" class="text-[11px] text-slate-400 truncate max-w-[280px] sm:max-w-md font-medium">
+                            Nun Sultan & Sagopa Kajmer - Sussan da Olur
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Fullscreen Trackpad Mode Button -->
+                <button id="fullscreen-tp-btn" class="px-3 py-1.5 rounded-xl bg-rose-500/20 border border-rose-500/50 text-rose-300 font-mono font-bold text-[11px] flex items-center gap-1.5 cursor-pointer hover:bg-rose-500/30 transition">
+                    <span id="tp-led" class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span>
+                    <span>FULL TRACKPAD: ON</span>
+                </button>
+            </div>
+
+            <!-- YouTube Loader & Quick Keyboard Legend -->
+            <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full xl:w-auto">
+                <input id="yt-url-input" type="text" value="https://www.youtube.com/watch?v=1Cmnwa1hqm4" placeholder="YouTube Linki Yapıştır..." class="flex-1 sm:w-72 hardware-inset rounded-xl px-3 py-1.5 text-xs text-slate-200 outline-none focus:border-cyan-400">
+                <button id="load-yt-btn" class="px-3.5 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs rounded-xl cursor-pointer transition">YÜKLE</button>
+                <div class="hidden md:flex items-center gap-1.5 text-[10px] font-mono text-slate-400 hardware-inset px-2.5 py-1.5 rounded-xl">
+                    <span class="text-cyan-400 font-bold">[2-PARMAK]</span> Scratch
+                    <span class="text-slate-600">|</span>
+                    <span class="text-rose-400 font-bold">[SPACE]</span> Cut
+                    <span class="text-slate-600">|</span>
+                    <span class="text-amber-400 font-bold">[Z/X/C]</span> Crab
+                    <span class="text-slate-600">|</span>
+                    <span class="text-emerald-400 font-bold">[H]</span> Hamster
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN 3-COLUMN BATTLE CONSOLE -->
+    <main class="max-w-[1440px] w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-3 flex-1 items-stretch">
+
+        <!-- LEFT DECK (4 Cols): YOUTUBE MONITOR + MELANCHOLIC BOOM-BAP SEQUENCER + MPC SAMPLER -->
+        <section class="lg:col-span-4 flex flex-col gap-2.5">
+            
+            <!-- YouTube Deck A -->
+            <div class="hardware-panel rounded-2xl p-3">
+                <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-[10px] font-mono font-bold text-cyan-400 tracking-wider">DECK A // YOUTUBE STREAM</span>
+                    <span id="yt-time-display" class="text-[10px] font-mono text-slate-400 hardware-inset px-2 py-0.5 rounded">00:00 / 00:00</span>
+                </div>
+                <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-black border border-slate-800">
+                    <div id="yt-player" class="w-full h-full"></div>
+                    <!-- Sandbox Fallback Banner -->
+                    <div id="yt-fallback-overlay" class="hidden absolute inset-0 bg-slate-950/95 p-4 flex flex-col items-center justify-center text-center">
+                        <span class="text-rose-400 font-mono font-bold text-xs mb-1">SANDBOX ÖNİZLEME MODU</span>
+                        <p class="text-[11px] text-slate-400 mb-2.5">YouTube embed bu pencerede kısıtlı. Dahili Sagopa Tarzı Melankolik Ud & Boom-Bap Beat motoru aktif!</p>
+                        <button id="fallback-start-beat" class="px-3.5 py-1.5 bg-amber-500 text-slate-950 font-black text-xs rounded-lg cursor-pointer">BEAT MOTORUNU BAŞLAT</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-4 gap-1.5 mt-2">
+                    <button id="yt-play-btn" class="col-span-2 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/50 text-cyan-300 font-mono font-bold text-[11px] rounded-lg cursor-pointer">▶ YT OYNAT / DURAKLAT</button>
+                    <button data-cue="0" class="cue-btn py-1.5 hardware-inset hover:border-cyan-500 text-slate-300 font-mono font-bold text-[10px] rounded-lg cursor-pointer">CUE 0:00</button>
+                    <button data-cue="53" class="cue-btn py-1.5 hardware-inset hover:border-rose-500 text-rose-400 font-mono font-bold text-[10px] rounded-lg cursor-pointer">NAKARAT</button>
+                </div>
+            </div>
+
+            <!-- Sagopa-Style Melancholic Oud/Rhodes & Boom-Bap Sequencer -->
+            <div class="hardware-panel rounded-2xl p-3">
+                <div class="flex items-center justify-between mb-1.5">
+                    <div class="flex items-center gap-2">
+                        <span id="seq-led" class="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
+                        <span class="text-[11px] font-mono font-extrabold text-amber-400 tracking-wide">MELANKOLIA BOOM-BAP ENGINE</span>
+                    </div>
+                    <span id="bpm-readout" class="text-[11px] font-mono font-bold text-white hardware-inset px-2 py-0.5 rounded">92 BPM</span>
+                </div>
+
+                <!-- 16-Step Visual Beat LEDs -->
+                <div id="step-leds" class="grid grid-cols-16 gap-1 mb-2.5 h-2"></div>
+
+                <div class="flex items-center gap-2 mb-2">
+                    <button id="beat-toggle-btn" class="flex-1 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black text-xs rounded-xl shadow cursor-pointer transition">
+                        ▶ BEAT BAŞLAT (UD + DAVUL)
+                    </button>
+                    <button id="melody-toggle-btn" class="px-2.5 py-2 bg-amber-500/20 border border-amber-500/50 text-amber-300 font-mono font-bold text-[10px] rounded-xl cursor-pointer" title="Melankolik Ud/Rhodes Melodisini Aç/Kapat">
+                        UD: AÇIK
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2.5 items-center">
+                    <div>
+                        <div class="flex justify-between text-[9px] font-mono text-slate-400 mb-0.5">
+                            <span>TEMPO (85-110)</span>
+                            <span>BPM</span>
+                        </div>
+                        <input id="bpm-slider" type="range" min="85" max="110" step="1" value="92" class="w-full">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[9px] font-mono text-slate-400 mb-0.5">
+                            <span>BEAT SESİ</span>
+                            <span id="beat-vol-label">75%</span>
+                        </div>
+                        <input id="beat-vol-slider" type="range" min="0" max="1" step="0.02" value="0.75" class="w-full">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4-Pad MPC Drum & FX Sampler (Q, W, E, R) -->
+            <div class="hardware-panel rounded-2xl p-3">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">MPC FX & ONE-SHOT SAMPLER</span>
+                    <span class="text-[10px] font-mono text-slate-500">KEYS: [Q] [W] [E] [R]</span>
+                </div>
+                <div class="grid grid-cols-4 gap-2">
+                    <button id="pad-q" class="mpc-pad py-2.5 px-1 hardware-inset border border-amber-500/40 hover:border-amber-400 rounded-xl text-center cursor-pointer transition">
+                        <div class="text-[11px] font-black text-amber-400">HORN</div>
+                        <div class="text-[9px] font-mono text-slate-400 mt-0.5">[Q]</div>
+                    </button>
+                    <button id="pad-w" class="mpc-pad py-2.5 px-1 hardware-inset border border-rose-500/40 hover:border-rose-400 rounded-xl text-center cursor-pointer transition">
+                        <div class="text-[11px] font-black text-rose-400">BRAKE</div>
+                        <div class="text-[9px] font-mono text-slate-400 mt-0.5">[W]</div>
+                    </button>
+                    <button id="pad-e" class="mpc-pad py-2.5 px-1 hardware-inset border border-cyan-500/40 hover:border-cyan-400 rounded-xl text-center cursor-pointer transition">
+                        <div class="text-[11px] font-black text-cyan-400">808 SUB</div>
+                        <div class="text-[9px] font-mono text-slate-400 mt-0.5">[E]</div>
+                    </button>
+                    <button id="pad-r" class="mpc-pad py-2.5 px-1 hardware-inset border border-purple-500/40 hover:border-purple-400 rounded-xl text-center cursor-pointer transition">
+                        <div class="text-[11px] font-black text-purple-400">LASER</div>
+                        <div class="text-[9px] font-mono text-slate-400 mt-0.5">[R]</div>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- CENTER MIXER (3 Cols): SCROLLING WAVEFORM + ISOLATOR EQ + RESONANCE FILTER + DUB DELAY -->
+        <section class="lg:col-span-3 hardware-panel rounded-2xl p-3 flex flex-col justify-between gap-2.5">
+            
+            <!-- Live Scrolling Scratch Waveform & FFT Spectrum -->
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-[10px] font-mono font-bold text-slate-300">SCRATCH WAVEFORM & FFT</span>
+                    <span class="text-[9px] font-mono"><span class="text-cyan-400">■ FWD</span> <span class="text-rose-400">■ REV</span></span>
+                </div>
+                <canvas id="telemetry-canvas" class="w-full h-28 hardware-inset rounded-xl"></canvas>
+            </div>
+
+            <!-- 3-Band Isolator EQ with Kill Switches -->
+            <div class="hardware-inset rounded-xl p-2.5">
+                <div class="text-[10px] font-mono font-bold text-center text-slate-400 tracking-widest mb-2">3-BAND ISOLATOR EQ</div>
+                <div class="space-y-2">
+                    <!-- HIGH -->
+                    <div class="flex items-center gap-2">
+                        <button id="kill-high" class="w-12 py-1 text-[9px] font-mono font-bold bg-slate-800 border border-slate-700 rounded text-slate-300 cursor-pointer">HI KILL</button>
+                        <input id="eq-high" type="range" min="-24" max="12" step="1" value="0" class="flex-1">
+                        <span id="val-high" class="w-10 text-right text-[10px] font-mono text-cyan-400">0dB</span>
+                    </div>
+                    <!-- MID -->
+                    <div class="flex items-center gap-2">
+                        <button id="kill-mid" class="w-12 py-1 text-[9px] font-mono font-bold bg-slate-800 border border-slate-700 rounded text-slate-300 cursor-pointer">MD KILL</button>
+                        <input id="eq-mid" type="range" min="-24" max="12" step="1" value="0" class="flex-1">
+                        <span id="val-mid" class="w-10 text-right text-[10px] font-mono text-cyan-400">0dB</span>
+                    </div>
+                    <!-- LOW -->
+                    <div class="flex items-center gap-2">
+                        <button id="kill-low" class="w-12 py-1 text-[9px] font-mono font-bold bg-slate-800 border border-slate-700 rounded text-slate-300 cursor-pointer">LO KILL</button>
+                        <input id="eq-low" type="range" min="-24" max="12" step="1" value="2" class="flex-1">
+                        <span id="val-low" class="w-10 text-right text-[10px] font-mono text-cyan-400">+2dB</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resonance Sweep Filter (LPF/HPF) & Ping-Pong Dub Delay -->
+            <div class="hardware-inset rounded-xl p-2.5 grid grid-cols-2 gap-2.5">
+                <div>
+                    <div class="flex justify-between text-[9px] font-mono mb-1">
+                        <span class="text-rose-400 font-bold">COLOR FILTER</span>
+                        <span id="filter-readout" class="text-slate-300">FLAT</span>
+                    </div>
+                    <input id="filter-slider" type="range" min="-1" max="1" step="0.02" value="0" class="w-full">
+                </div>
+                <div>
+                    <div class="flex justify-between text-[9px] font-mono mb-1">
+                        <span class="text-cyan-400 font-bold">DUB DELAY</span>
+                        <span id="delay-readout" class="text-slate-300">15%</span>
+                    </div>
+                    <input id="delay-slider" type="range" min="0" max="0.65" step="0.02" value="0.15" class="w-full">
+                </div>
+            </div>
+
+            <!-- Scratch Physics Calibration (Sensitivity & Torque) -->
+            <div class="hardware-inset rounded-xl p-2.5 grid grid-cols-2 gap-2.5">
+                <div>
+                    <div class="flex justify-between text-[9px] font-mono mb-1">
+                        <span class="text-slate-400">TRACKPAD SENS</span>
+                        <span id="sens-readout" class="text-cyan-400">1.2x</span>
+                    </div>
+                    <input id="sens-slider" type="range" min="0.4" max="2.5" step="0.1" value="1.2" class="w-full">
+                </div>
+                <div>
+                    <div class="flex justify-between text-[9px] font-mono mb-1">
+                        <span class="text-slate-400">SLIPMAT GRIP</span>
+                        <span id="torque-readout" class="text-amber-400">86%</span>
+                    </div>
+                    <input id="torque-slider" type="range" min="0.72" max="0.96" step="0.01" value="0.86" class="w-full">
+                </div>
+            </div>
+
+            <!-- Pitch / Tempo Fader -->
+            <div class="hardware-inset rounded-xl p-2.5">
+                <div class="flex justify-between items-center text-[10px] font-mono mb-1">
+                    <span class="text-slate-300 font-bold">ULTRA PITCH (±16%)</span>
+                    <button id="pitch-reset-btn" class="text-cyan-400 hover:underline cursor-pointer">QUARTZ LOCK (0.0%)</button>
+                    <span id="pitch-readout" class="text-cyan-400 font-bold">0.0%</span>
+                </div>
+                <input id="pitch-slider" type="range" min="-16" max="16" step="0.5" value="0" class="w-full">
+            </div>
+        </section>
+
+        <!-- RIGHT DECK (5 Cols): HIGH-FPS TECHNICS SL-1200 CANVAS TURNTABLE & BATTLE CROSSFADER -->
+        <section class="lg:col-span-5 hardware-panel rounded-2xl p-3.5 flex flex-col justify-between relative">
+            
+            <!-- Top Platter Controls: Motor Start/Stop, 33/45 RPM, Needle Drop, Sample Banks [1-4] -->
+            <div class="flex flex-wrap items-center justify-between gap-2 z-10">
+                <div class="flex items-center gap-1.5">
+                    <button id="motor-toggle-btn" class="px-2.5 py-1.5 bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 font-mono font-bold text-[10px] rounded-lg cursor-pointer">
+                        MOTOR: ON
+                    </button>
+                    <button id="rpm-toggle-btn" class="px-2.5 py-1.5 hardware-inset border border-slate-700 text-cyan-400 font-mono font-bold text-[10px] rounded-lg cursor-pointer">
+                        33⅓ RPM
+                    </button>
+                    <button id="needle-btn" class="px-2.5 py-1.5 hardware-inset border border-slate-700 text-amber-400 font-mono font-bold text-[10px] rounded-lg cursor-pointer" title="İğne Koy/Kaldır">
+                        NEEDLE
+                    </button>
+                </div>
+
+                <!-- Live Velocity & Angle Telemetry -->
+                <div class="hardware-inset px-2.5 py-1 rounded-lg font-mono text-[10px] flex items-center gap-2">
+                    <span>VEL: <strong id="vel-telemetry" class="text-cyan-400">0.00</strong></span>
+                    <span class="text-slate-700">|</span>
+                    <span id="dir-telemetry" class="text-slate-400 font-bold">IDLE</span>
+                </div>
+            </div>
+
+            <!-- 4 Scratch Sample Banks [Keys 1, 2, 3, 4] -->
+            <div class="grid grid-cols-4 gap-1.5 mt-2 z-10">
+                <button data-bank="aahh" class="bank-btn py-1.5 rounded-lg font-mono font-extrabold text-[11px] bg-rose-600 text-white border border-rose-400 cursor-pointer shadow">
+                    [1] AAHH
+                </button>
+                <button data-bank="fresh" class="bank-btn py-1.5 rounded-lg font-mono font-extrabold text-[11px] hardware-inset text-slate-300 border border-slate-700 hover:border-slate-500 cursor-pointer">
+                    [2] FRESH
+                </button>
+                <button data-bank="boom" class="bank-btn py-1.5 rounded-lg font-mono font-extrabold text-[11px] hardware-inset text-slate-300 border border-slate-700 hover:border-slate-500 cursor-pointer">
+                    [3] BOOM SUB
+                </button>
+                <button data-bank="horn" class="bank-btn py-1.5 rounded-lg font-mono font-extrabold text-[11px] hardware-inset text-slate-300 border border-slate-700 hover:border-slate-500 cursor-pointer">
+                    [4] SIREN
+                </button>
+            </div>
+
+            <!-- HIGH-FPS HTML5 CANVAS VINYL PLATTER & TONEARM -->
+            <div id="platter-container" class="relative flex-1 flex items-center justify-center my-2 min-h-[280px] sm:min-h-[320px] cursor-grab active:cursor-grabbing touch-none">
+                <canvas id="turntable-canvas" class="w-full h-full max-w-[360px] max-h-[360px]"></canvas>
+            </div>
+
+            <!-- PRO BATTLE CROSSFADER, HAMSTER SWITCH & CRAB SCRATCH PANEL -->
+            <div class="hardware-inset rounded-2xl p-3 z-10">
+                <div class="flex items-center justify-between text-[10px] font-mono font-bold mb-1.5">
+                    <span class="text-cyan-400">◀ BEAT / YT</span>
+                    <div class="flex items-center gap-2">
+                        <button id="hamster-btn" class="px-2 py-0.5 rounded bg-slate-800 border border-slate-600 text-slate-300 hover:border-amber-400 cursor-pointer" title="Hamster Switch [H]: Fader yönünü ters çevirir">
+                            HAMSTER [H]: OFF
+                        </button>
+                    </div>
+                    <span class="text-rose-400">SCRATCH ▶</span>
+                </div>
+
+                <!-- Precision Crossfader -->
+                <input id="crossfader" type="range" min="0" max="1" step="0.01" value="0.55" class="w-full mb-2.5">
+
+                <!-- Transformer Cut [SPACE] & 3-Finger Crab Scratch Buttons [Z, X, C] -->
+                <div class="grid grid-cols-5 gap-1.5">
+                    <button id="cut-space-btn" class="col-span-2 py-2.5 bg-slate-800 hover:bg-rose-600 text-white font-mono font-black text-[11px] rounded-xl border border-slate-600 cursor-pointer transition">
+                        FADER CUT [SPACE]
+                    </button>
+                    <button id="crab-z" class="crab-btn py-2.5 bg-slate-900 hover:bg-amber-500/20 text-amber-400 font-mono font-bold text-[11px] rounded-xl border border-amber-500/40 cursor-pointer">
+                        CRAB [Z]
+                    </button>
+                    <button id="crab-x" class="crab-btn py-2.5 bg-slate-900 hover:bg-amber-500/20 text-amber-400 font-mono font-bold text-[11px] rounded-xl border border-amber-500/40 cursor-pointer">
+                        CRAB [X]
+                    </button>
+                    <button id="crab-c" class="crab-btn py-2.5 bg-slate-900 hover:bg-amber-500/20 text-amber-400 font-mono font-bold text-[11px] rounded-xl border border-amber-500/40 cursor-pointer">
+                        CRAB [C]
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-slate-950 border border-cyan-500 text-white px-4 py-2 rounded-xl shadow-2xl font-mono text-xs opacity-0 pointer-events-none transition-opacity duration-200 z-50"></div>
+
+    <!-- YouTube IFrame API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <script>
+        /**
+         * ============================================================================
+         * SL-1200 MK7 PRO // MACBOOK TRACKPAD BATTLE DJ & DSP SCRATCH ENGINE
+         * ============================================================================
+         * 1. Cubic-Interpolated Bidirectional AudioBuffer Scrubber:
+         *    Reads 48kHz synthesized formant/vinyl buffers both forward and backward
+         *    at exact trackpad angular velocity without aliasing or clicks.
+         * 2. Clickless 2ms VCA Crossfader Gate:
+         *    Supports Battle Cuts (Spacebar), 3-Finger Crab Scratches (Z/X/C),
+         *    and Hamster Reverse Mode (H).
+         * 3. Melankolia Boom-Bap Sequencer:
+         *    Synthesizes dusty vinyl Rhodes/Oud minor arpeggio + analog drums + sub.
+         */
+
+        // --- GLOBAL STATE ---
+        let audioCtx = null;
+        let isAudioUnlocked = false;
+
+        // Master DSP Nodes
+        let masterCompressor = null;
+        let masterGain = null;
+        let analyserNode = null;
+        let eqLow = null, eqMid = null, eqHigh = null;
+        let colorFilter = null;
+        let delayNode = null, delayFeedback = null, delayWet = null;
+
+        // Scratch Engine State
+        let scratchBuffers = {};
+        let currentBank = 'aahh';
+        let scratchReadPos = 0;
+        let scratchProcessor = null;
+        let scratchVcaGain = null;
+        let vinylNoiseGain = null;
+
+        // Fader & Battle Controls
+        let crossfaderPos = 0.55; // 0 = Beat/YT, 1 = Scratch
+        let isHamsterMode = false;
+        let isSpaceCutHeld = false;
+        let crabKeysHeld = { z: false, x: false, c: false };
+        let faderOpen = true;
+
+        // Turntable Physics
+        let platterAngle = 0; // Radians
+        let angularVelocity = 0; // Radians per frame
+        let motorOn = true;
+        let rpmMode = 33; // 33 or 45
+        let needleDropped = true;
+        let isPointerDragging = false;
+        let lastDragAngle = 0;
+        let isTrackpadScratching = false;
+        let trackpadIdleTimer = null;
+        let fullTrackpadMode = true;
+        let trackpadSensitivity = 1.2;
+        let slipmatInertia = 0.86;
+        let ultraPitch = 0; // -16% to +16%
+
+        // Beat Sequencer State
+        let isBeatRunning = false;
+        let isMelodyEnabled = true;
+        let beatBpm = 92;
+        let currentStep = 0;
+        let beatTimerId = null;
+        let beatBusGain = null;
+
+        // YouTube State
+        let ytPlayer = null;
+        let isYtReady = false;
+        let isYtPlaying = false;
+        let currentVideoId = '1Cmnwa1hqm4';
+
+        // Telemetry History for Scrolling Waveform
+        const WAVE_HISTORY_LEN = 160;
+        const waveHistory = new Array(WAVE_HISTORY_LEN).fill({ vel: 0, open: true });
+
+        // DOM Elements
+        const ttCanvas = document.getElementById('turntable-canvas');
+        const ttCtx = ttCanvas.getContext('2d');
+        const telCanvas = document.getElementById('telemetry-canvas');
+        const telCtx = telCanvas.getContext('2d');
+
+        // --- TOAST HELPER ---
+        function showToast(msg) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.classList.remove('opacity-0');
+            clearTimeout(el._t);
+            el._t = setTimeout(() => el.classList.add('opacity-0'), 2200);
+        }
+
+        // --- INITIALIZE 48kHz WEB AUDIO DSP ENGINE ---
+        function unlockAudio() {
+            if (audioCtx) {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                return;
+            }
+
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+            isAudioUnlocked = true;
+
+            const badge = document.getElementById('audio-status-badge');
+            badge.textContent = `DSP ACTIVE // ${Math.round(audioCtx.sampleRate / 1000)}kHz`;
+            badge.className = "px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
+
+            // 1. 3-Band Isolator EQ
+            eqLow = audioCtx.createBiquadFilter();
+            eqLow.type = 'lowshelf';
+            eqLow.frequency.value = 240;
+            eqLow.gain.value = 2;
+
+            eqMid = audioCtx.createBiquadFilter();
+            eqMid.type = 'peaking';
+            eqMid.frequency.value = 1150;
+            eqMid.Q.value = 0.9;
+            eqMid.gain.value = 0;
+
+            eqHigh = audioCtx.createBiquadFilter();
+            eqHigh.type = 'highshelf';
+            eqHigh.frequency.value = 3400;
+            eqHigh.gain.value = 0;
+
+            // 2. Color Sweep Filter (LPF / HPF)
+            colorFilter = audioCtx.createBiquadFilter();
+            colorFilter.type = 'allpass';
+            colorFilter.frequency.value = 1000;
+
+            // 3. Ping-Pong / Dub Delay Send
+            delayNode = audioCtx.createDelay(1.0);
+            delayNode.delayTime.value = (60 / beatBpm) * 0.75; // Dotted 8th dub delay
+            delayFeedback = audioCtx.createGain();
+            delayFeedback.gain.value = 0.38;
+            delayWet = audioCtx.createGain();
+            delayWet.gain.value = 0.15;
+
+            delayNode.connect(delayFeedback);
+            delayFeedback.connect(delayNode);
+            delayNode.connect(delayWet);
+
+            // 4. Master Bus Limiter & Analyser
+            masterCompressor = audioCtx.createDynamicsCompressor();
+            masterCompressor.threshold.value = -8;
+            masterCompressor.knee.value = 12;
+            masterCompressor.ratio.value = 8;
+            masterCompressor.attack.value = 0.002;
+            masterCompressor.release.value = 0.12;
+
+            masterGain = audioCtx.createGain();
+            masterGain.gain.value = 0.92;
+
+            analyserNode = audioCtx.createAnalyser();
+            analyserNode.fftSize = 256;
+            analyserNode.smoothingTimeConstant = 0.78;
+
+            // Routing: EQ -> ColorFilter -> Compressor -> MasterGain -> Analyser -> Out
+            eqLow.connect(eqMid);
+            eqMid.connect(eqHigh);
+            eqHigh.connect(colorFilter);
+            colorFilter.connect(masterCompressor);
+            colorFilter.connect(delayNode);
+            delayWet.connect(masterCompressor);
+            masterCompressor.connect(masterGain);
+            masterGain.connect(analyserNode);
+            analyserNode.connect(audioCtx.destination);
+
+            // Beat Bus
+            beatBusGain = audioCtx.createGain();
+            beatBusGain.gain.value = 0.75;
+            beatBusGain.connect(eqLow);
+
+            // Scratch VCA Gate (Clickless 2ms envelope)
+            scratchVcaGain = audioCtx.createGain();
+            scratchVcaGain.gain.value = 0.85;
+            scratchVcaGain.connect(eqLow);
+
+            // Build High-Definition DSP Scratch Sample Banks
+            buildScratchBanks();
+            initBidirectionalScrubber();
+            startVinylSurfaceCrackle();
+            updateCrossfaderRouting();
+        }
+
+        /**
+         * Synthesizes 4 iconic DJ scratch sample buffers at native sampleRate:
+         * 1. 'aahh'  : Classic multi-formant "AAHH" vocal stab (F1=750Hz, F2=1250Hz, F3=2500Hz)
+         * 2. 'fresh' : Classic "FRESH" vocal scratch (Fricative 'F' -> Formant glide 'RE' -> 'SH' tail)
+         * 3. 'boom'  : Heavy 808 Sub-Harmonic Bass Drop stab for aggressive tearing
+         * 4. 'horn'  : Classic Jamaican/Hip-Hop DJ Airhorn & Dub Siren chord
+         */
+        function buildScratchBanks() {
+            const sr = audioCtx.sampleRate;
+            const len = Math.floor(sr * 1.1); // 1.1 second high-res buffer
+
+            // Helper: 2-pole Resonant Bandpass Filter on raw array
+            function applyBandpass(input, centerFreq, Q) {
+                const out = new Float32Array(input.length);
+                const w0 = (2 * Math.PI * centerFreq) / sr;
+                const alpha = Math.sin(w0) / (2 * Q);
+                const b0 = alpha, b1 = 0, b2 = -alpha;
+                const a0 = 1 + alpha, a1 = -2 * Math.cos(w0), a2 = 1 - alpha;
+                let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+                for (let i = 0; i < input.length; i++) {
+                    const x0 = input[i];
+                    const y0 = (b0 * x0 + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2) / a0;
+                    out[i] = y0;
+                    x2 = x1; x1 = x0; y2 = y1; y1 = y0;
+                }
+                return out;
+            }
+
+            // BANK 1: "AAHH" Classic Battle Vocal Formant
+            {
+                const raw = new Float32Array(len);
+                for (let i = 0; i < len; i++) {
+                    const t = i / sr;
+                    const pitch = 138 + Math.sin(t * 9) * 4 - t * 14;
+                    const phase = (t * pitch) % 1;
+                    // Rich glottal pulse wave
+                    const glottal = (2 * phase - 1) + 0.5 * Math.sin(2 * Math.PI * phase);
+                    raw[i] = glottal;
+                }
+                const f1 = applyBandpass(raw, 750, 5.5);
+                const f2 = applyBandpass(raw, 1250, 6.5);
+                const f3 = applyBandpass(raw, 2500, 8.0);
+
+                const buf = audioCtx.createBuffer(1, len, sr);
+                const ch = buf.getChannelData(0);
+                for (let i = 0; i < len; i++) {
+                    const t = i / sr;
+                    const env = Math.min(1, t / 0.02) * Math.exp(-t * 1.4);
+                    const mixed = (f1[i] * 1.8 + f2[i] * 1.3 + f3[i] * 0.7) * env;
+                    // Warm tape saturation (tanh)
+                    ch[i] = Math.tanh(mixed * 1.6) * 0.85;
+                }
+                scratchBuffers.aahh = buf;
+            }
+
+            // BANK 2: "FRESH" Vocal Scratch
+            {
+                const raw = new Float32Array(len);
+                for (let i = 0; i < len; i++) {
+                    const t = i / sr;
+                    const pitch = 152 - t * 22;
+                    raw[i] = ((t * pitch) % 1) * 2 - 1;
+                }
+                const f1 = applyBandpass(raw, 620, 5.0);
+                const f2 = applyBandpass(raw, 1780, 6.0);
+
+                const buf = audioCtx.createBuffer(1, len, sr);
+                const ch = buf.getChannelData(0);
+                for (let i = 0; i < len; i++) {
+                    const t = i / sr;
+                    // 'F' burst (0 - 0.12s)
+                    const fNoise = (Math.random() * 2 - 1) * Math.exp(-t * 28) * 0.9;
+                    // 'RE' vowel body (0.06 - 0.55s)
+                    const vowelEnv = Math.max(0, Math.sin(Math.PI * Math.min(1, Math.max(0, (t - 0.05) / 0.55))));
+                    const vowel = (f1[i] * 1.6 + f2[i] * 1.2) * vowelEnv;
+                    // 'SH' sibilant tail (0.45 - 0.95s)
+                    const shEnv = t > 0.42 ? Math.exp(-(t - 0.42) * 7) * 0.55 : 0;
+                    const shNoise = (Math.random() * 2 - 1) * shEnv;
+                    ch[i] = Math.tanh((fNoise + vowel + shNoise) * 1.5) * 0.85;
+                }
+                scratchBuffers.fresh = buf;
+            }
+
+            // BANK 3: "BOOM / BASS DROP" Sub-Harmonic Synth Stab
+            {
+                const buf = audioCtx.createBuffer(1, len, sr);
+                const ch = buf.getChannelData(0);
+                let phase = 0;
+                for (let i = 0; i < len; i++) {
+                    const t = i / sr;
+                    const freq = 140 * Math.exp(-t * 4.5) + 42;
+                    phase += freq / sr;
+                    const sub = Math.sin(2 * Math.PI * phase);
+                    const punch = Math.sin(2 * Math.PI * phase * 2) * Math.exp(-t * 12) * 0.5;
+                    const env = Math.min(1, t / 0.008) * Math.exp(-t * 1.8);
+                    ch[i] = Math.tanh((sub + punch) * 2.2) * env * 0.9;
+                }
+                scratchBuffers.boom = buf;
+            }
+
+            // BANK 4: "HORN / SIREN" Classic DJ Airhorn
+            {
+                const buf = audioCtx.createBuffer(1, len, sr);
+                const ch = buf.getChannelData(0);
+                const freqs = [440, 554.37, 659.25, 880];
+                for (let i = 0; i < len; i++) {
+                    const t = i / sr;
+                    const pitchBend = t < 0.08 ? (0.94 + (t / 0.08) * 0.06) : 1.0;
+                    let sum = 0;
+                    for (let f = 0; f < freqs.length; f++) {
+                        const saw = ((t * freqs[f] * pitchBend) % 1) * 2 - 1;
+                        sum += saw * 0.28;
+                    }
+                    const env = Math.min(1, t / 0.015) * Math.exp(-t * 1.6);
+                    ch[i] = Math.tanh(sum * 1.7) * env * 0.85;
+                }
+                scratchBuffers.horn = buf;
+            }
+        }
+
+        /**
+         * Bidirectional Variable-Speed Buffer Playback with Cubic Interpolation.
+         * Traverses the active AudioBuffer forward (positive velocity) and backward
+         * (negative velocity) in real time based on MacBook Trackpad movement!
+         */
+        function initBidirectionalScrubber() {
+            if (scratchProcessor) scratchProcessor.disconnect();
+
+            scratchProcessor = audioCtx.createScriptProcessor(512, 0, 1);
+            scratchProcessor.onaudioprocess = function(e) {
+                const out = e.outputBuffer.getChannelData(0);
+                const buf = scratchBuffers[currentBank];
+                if (!buf || !needleDropped) {
+                    out.fill(0);
+                    return;
+                }
+
+                const data = buf.getChannelData(0);
+                const N = data.length;
+
+                // Convert platter angular velocity (rad/frame) to sample playback ratio
+                // Normal 33 RPM spin ~ 0.058 rad/frame -> 1.0x playback speed
+                const normalRadPerFrame = (rpmMode === 33 ? 33.33 : 45) * (2 * Math.PI) / (60 * 60);
+                const pitchMult = 1 + (ultraPitch / 100);
+                const isActivelyMoved = isTrackpadScratching || isPointerDragging || Math.abs(angularVelocity) > 0.004;
+
+                let speedRatio = 0;
+                if (isTrackpadScratching || isPointerDragging) {
+                    speedRatio = (angularVelocity / normalRadPerFrame) * 0.65;
+                } else if (Math.abs(angularVelocity) > 0.005) {
+                    speedRatio = (angularVelocity / normalRadPerFrame) * 0.65;
+                }
+
+                // Clamp extreme speeds to prevent ultrasonic artifacts
+                speedRatio = Math.max(-4.5, Math.min(4.5, speedRatio));
+
+                for (let i = 0; i < out.length; i++) {
+                    if (!isActivelyMoved || Math.abs(speedRatio) < 0.03) {
+                        out[i] = 0;
+                    } else {
+                        // Linear/Cubic fractional index lookup
+                        const i0 = Math.floor(scratchReadPos);
+                        const frac = scratchReadPos - i0;
+                        const idx0 = ((i0 % N) + N) % N;
+                        const idx1 = (idx0 + 1) % N;
+                        const sample = data[idx0] + frac * (data[idx1] - data[idx0]);
+
+                        // Dynamic velocity-sensitive amplitude
+                        const dynGain = Math.min(1.0, Math.abs(speedRatio) * 0.85);
+                        out[i] = sample * dynGain;
+
+                        scratchReadPos += speedRatio * pitchMult;
+                        if (scratchReadPos >= N) scratchReadPos -= N;
+                        if (scratchReadPos < 0) scratchReadPos += N;
+                    }
+                }
+            };
+
+            scratchProcessor.connect(scratchVcaGain);
+        }
+
+        // Subtle warm vinyl surface hiss & dust crackle floor
+        function startVinylSurfaceCrackle() {
+            const sr = audioCtx.sampleRate;
+            const bufLen = sr * 3;
+            const noiseBuf = audioCtx.createBuffer(1, bufLen, sr);
+            const ch = noiseBuf.getChannelData(0);
+            for (let i = 0; i < bufLen; i++) {
+                const hiss = (Math.random() * 2 - 1) * 0.004;
+                const pop = Math.random() < 0.00035 ? (Math.random() * 2 - 1) * 0.14 : 0;
+                ch[i] = hiss + pop;
+            }
+            const src = audioCtx.createBufferSource();
+            src.buffer = noiseBuf;
+            src.loop = true;
+
+            vinylNoiseGain = audioCtx.createGain();
+            vinylNoiseGain.gain.value = 0.35;
+            src.connect(vinylNoiseGain);
+            vinylNoiseGain.connect(eqLow);
+            src.start();
+        }
+
+        // --- CLICKLESS 2ms BATTLE CROSSFADER & HAMSTER LOGIC ---
+        function updateCrossfaderRouting() {
+            const anyCrabHeld = crabKeysHeld.z || crabKeysHeld.x || crabKeysHeld.c;
+            const cutTriggered = isSpaceCutHeld || anyCrabHeld;
+
+            // Hamster Switch reverses the cut gate behavior!
+            faderOpen = isHamsterMode ? cutTriggered : !cutTriggered;
+
+            // Equal-power crossfade curve
+            const beatVolBase = parseFloat(document.getElementById('beat-vol-slider').value);
+            const musicGain = Math.cos(crossfaderPos * 0.5 * Math.PI);
+            const scratchGain = Math.sin(crossfaderPos * 0.5 * Math.PI);
+
+            if (audioCtx && scratchVcaGain) {
+                const targetScratch = faderOpen ? (scratchGain * 1.15) : 0.0;
+                // 2ms ultra-fast clickless VCA ramp
+                scratchVcaGain.gain.setTargetAtTime(targetScratch, audioCtx.currentTime, 0.002);
+            }
+            if (audioCtx && beatBusGain) {
+                beatBusGain.gain.setTargetAtTime(musicGain * beatVolBase, audioCtx.currentTime, 0.015);
+            }
+            if (ytPlayer && isYtReady && ytPlayer.setVolume) {
+                ytPlayer.setVolume(Math.round(musicGain * 100));
+            }
+        }
+
+        // --- SAGOPA-STYLE MELANCHOLIC BOOM-BAP SEQUENCER (D MINOR / PHRYGIAN) ---
+        function buildStepLeds() {
+            const container = document.getElementById('step-leds');
+            container.innerHTML = '';
+            for (let i = 0; i < 16; i++) {
+                const div = document.createElement('div');
+                div.id = `step-led-${i}`;
+                div.className = `rounded-sm transition-colors duration-75 ${i % 4 === 0 ? 'bg-slate-600' : 'bg-slate-800'}`;
+                container.appendChild(div);
+            }
+        }
+
+        function triggerSequencerStep(step) {
+            if (!audioCtx || !beatBusGain) return;
+            const now = audioCtx.currentTime;
+
+            // Update LEDs
+            for (let i = 0; i < 16; i++) {
+                const led = document.getElementById(`step-led-${i}`);
+                if (!led) continue;
+                if (i === step) {
+                    led.className = 'rounded-sm bg-amber-400 shadow-[0_0_8px_#fbbf24]';
+                } else {
+                    led.className = `rounded-sm ${i % 4 === 0 ? 'bg-slate-600' : 'bg-slate-800'}`;
+                }
+            }
+
+            // 1. Punchy Analog Boom-Bap Kick: steps 0, 3, 7, 10, 11(ghost)
+            if ([0, 3, 7, 10].includes(step)) {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(140, now);
+                osc.frequency.exponentialRampToValueAtTime(36, now + 0.13);
+                gain.gain.setValueAtTime(0.95, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+                osc.connect(gain);
+                gain.connect(beatBusGain);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            }
+
+            // 2. Crisp Underground Snare + Spring Reverb Tail: steps 4, 12
+            if ([4, 12].includes(step)) {
+                const len = Math.floor(audioCtx.sampleRate * 0.22);
+                const nBuf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+                const ch = nBuf.getChannelData(0);
+                for (let i = 0; i < len; i++) ch[i] = Math.random() * 2 - 1;
+
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = nBuf;
+                const hp = audioCtx.createBiquadFilter();
+                hp.type = 'highpass';
+                hp.frequency.value = 850;
+                const nGain = audioCtx.createGain();
+                nGain.gain.setValueAtTime(0.65, now);
+                nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.21);
+                noise.connect(hp);
+                hp.connect(nGain);
+                nGain.connect(beatBusGain);
+                noise.start(now);
+
+                const body = audioCtx.createOscillator();
+                const bGain = audioCtx.createGain();
+                body.type = 'triangle';
+                body.frequency.setValueAtTime(190, now);
+                body.frequency.exponentialRampToValueAtTime(82, now + 0.08);
+                bGain.gain.setValueAtTime(0.45, now);
+                bGain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+                body.connect(bGain);
+                bGain.connect(beatBusGain);
+                body.start(now);
+                body.stop(now + 0.1);
+            }
+
+            // 3. Swung Dusty Hi-Hats
+            if (step % 2 === 0 || step === 15) {
+                const swingOffset = (step % 4 === 2) ? 0.018 : 0;
+                const tHat = now + swingOffset;
+                const hLen = Math.floor(audioCtx.sampleRate * 0.045);
+                const hBuf = audioCtx.createBuffer(1, hLen, audioCtx.sampleRate);
+                const ch = hBuf.getChannelData(0);
+                for (let i = 0; i < hLen; i++) ch[i] = Math.random() * 2 - 1;
+
+                const hat = audioCtx.createBufferSource();
+                hat.buffer = hBuf;
+                const bp = audioCtx.createBiquadFilter();
+                bp.type = 'bandpass';
+                bp.frequency.value = 7800;
+                bp.Q.value = 1.4;
+                const hGain = audioCtx.createGain();
+                hGain.gain.setValueAtTime(step % 4 === 2 ? 0.26 : 0.14, tHat);
+                hGain.gain.exponentialRampToValueAtTime(0.001, tHat + 0.04);
+                hat.connect(bp);
+                bp.connect(hGain);
+                hGain.connect(beatBusGain);
+                hat.start(tHat);
+            }
+
+            // 4. Deep Sub-Bass Line (D Minor: D1=36.71, F1=43.65, Bb1=58.27, A1=55.0)
+            const bassMap = { 0: 73.42, 6: 87.31, 8: 58.27, 12: 55.0, 14: 65.41 };
+            if (bassMap[step]) {
+                const sub = audioCtx.createOscillator();
+                const sGain = audioCtx.createGain();
+                sub.type = 'triangle';
+                sub.frequency.setValueAtTime(bassMap[step], now);
+                sGain.gain.setValueAtTime(0.45, now);
+                sGain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+                sub.connect(sGain);
+                sGain.connect(beatBusGain);
+                sub.start(now);
+                sub.stop(now + 0.44);
+            }
+
+            // 5. Sagopa-Style Melancholic Oud / Dusty Rhodes Minor Arpeggio
+            // D Phrygian / Hijaz flavor: D4(293.66), Eb4(311.13), F#4(369.99), G4(392.00), A4(440.00), Bb4(466.16)
+            const oudNotes = {
+                0: 293.66, 2: 311.13, 4: 369.99, 6: 392.00,
+                8: 440.00, 10: 466.16, 12: 440.00, 14: 369.99
+            };
+            if (isMelodyEnabled && oudNotes[step]) {
+                const freq = oudNotes[step];
+                const osc1 = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const filter = audioCtx.createBiquadFilter();
+                const mGain = audioCtx.createGain();
+
+                osc1.type = 'sawtooth';
+                osc2.type = 'triangle';
+                osc1.frequency.setValueAtTime(freq, now);
+                osc2.frequency.setValueAtTime(freq * 1.003, now); // Slight vinyl pitch warble
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(1450, now);
+                filter.frequency.exponentialRampToValueAtTime(420, now + 0.38);
+
+                mGain.gain.setValueAtTime(0.001, now);
+                mGain.gain.linearRampToValueAtTime(0.16, now + 0.015);
+                mGain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+                osc1.connect(filter);
+                osc2.connect(filter);
+                filter.connect(mGain);
+                mGain.connect(beatBusGain);
+
+                osc1.start(now);
+                osc2.start(now);
+                osc1.stop(now + 0.48);
+                osc2.stop(now + 0.48);
+            }
+        }
+
+        function startBeatScheduler() {
+            clearInterval(beatTimerId);
+            const effectiveBpm = beatBpm * (1 + ultraPitch / 100);
+            const stepMs = (60 / effectiveBpm / 4) * 1000;
+            beatTimerId = setInterval(() => {
+                if (!isBeatRunning) return;
+                triggerSequencerStep(currentStep);
+                currentStep = (currentStep + 1) % 16;
+            }, stepMs);
+        }
+
+        function toggleBeatSequencer(forceOn = false) {
+            unlockAudio();
+            if (forceOn && isBeatRunning) return;
+            isBeatRunning = !isBeatRunning;
+
+            const btn = document.getElementById('beat-toggle-btn');
+            const led = document.getElementById('seq-led');
+            if (isBeatRunning) {
+                btn.textContent = "⏹ BEAT DURDUR";
+                btn.className = "flex-1 py-2 bg-rose-600 hover:bg-rose-500 text-white font-black text-xs rounded-xl shadow cursor-pointer transition";
+                led.className = "w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping";
+                currentStep = 0;
+                startBeatScheduler();
+                showToast(`🥁 Melankolia Beat Aktif (${beatBpm} BPM)`);
+            } else {
+                btn.textContent = "▶ BEAT BAŞLAT (UD + DAVUL)";
+                btn.className = "flex-1 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black text-xs rounded-xl shadow cursor-pointer transition";
+                led.className = "w-2.5 h-2.5 rounded-full bg-slate-700";
+                clearInterval(beatTimerId);
+            }
+        }
+
+        // --- 4-PAD MPC SAMPLER & NEEDLE DROP FX ---
+        function playNeedleDropFX(dropping) {
+            unlockAudio();
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(dropping ? 95 : 180, now);
+            osc.frequency.exponentialRampToValueAtTime(dropping ? 32 : 420, now + 0.09);
+            gain.gain.setValueAtTime(0.35, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+            osc.connect(gain);
+            gain.connect(eqLow);
+            osc.start(now);
+            osc.stop(now + 0.11);
+        }
+
+        function triggerMpcPad(pad) {
+            unlockAudio();
+            const now = audioCtx.currentTime;
+            const btn = document.getElementById(`pad-${pad}`);
+            if (btn) {
+                btn.classList.add('pad-active');
+                setTimeout(() => btn.classList.remove('pad-active'), 140);
+            }
+
+            if (pad === 'q') {
+                // DJ Airhorn
+                [440, 554.37, 659.25].forEach(f => {
+                    const osc = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(f * 0.95, now);
+                    osc.frequency.linearRampToValueAtTime(f, now + 0.07);
+                    osc.frequency.exponentialRampToValueAtTime(f * 0.85, now + 0.58);
+                    g.gain.setValueAtTime(0.14, now);
+                    g.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+                    osc.connect(g);
+                    g.connect(eqLow);
+                    osc.start(now);
+                    osc.stop(now + 0.62);
+                });
+            } else if (pad === 'w') {
+                // Realistic Platter Power-Down Vinyl Brake
+                angularVelocity = -0.35;
+                isTrackpadScratching = true;
+                clearTimeout(trackpadIdleTimer);
+                trackpadIdleTimer = setTimeout(() => isTrackpadScratching = false, 550);
+
+                const osc = audioCtx.createOscillator();
+                const g = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(280, now);
+                osc.frequency.exponentialRampToValueAtTime(24, now + 0.65);
+                g.gain.setValueAtTime(0.26, now);
+                g.gain.exponentialRampToValueAtTime(0.001, now + 0.68);
+                osc.connect(g);
+                g.connect(eqLow);
+                osc.start(now);
+                osc.stop(now + 0.7);
+            } else if (pad === 'e') {
+                // 808 Sub Drop
+                const osc = audioCtx.createOscillator();
+                const g = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(130, now);
+                osc.frequency.exponentialRampToValueAtTime(29, now + 1.05);
+                g.gain.setValueAtTime(0.65, now);
+                g.gain.exponentialRampToValueAtTime(0.001, now + 1.1);
+                osc.connect(g);
+                g.connect(eqLow);
+                osc.start(now);
+                osc.stop(now + 1.15);
+            } else if (pad === 'r') {
+                // Reggae/Dub Laser Siren
+                const osc = audioCtx.createOscillator();
+                const g = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(1850, now);
+                osc.frequency.exponentialRampToValueAtTime(160, now + 0.35);
+                g.gain.setValueAtTime(0.18, now);
+                g.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+                osc.connect(g);
+                g.connect(eqLow);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            }
+        }
+
+        // --- YOUTUBE IFRAME API ---
+        function onYouTubeIframeAPIReady() {
+            ytPlayer = new YT.Player('yt-player', {
+                height: '100%',
+                width: '100%',
+                videoId: currentVideoId,
+                playerVars: { playsinline: 1, controls: 1, rel: 0, modestbranding: 1 },
+                events: {
+                    onReady: () => { isYtReady = true; startYtTimePolling(); },
+                    onStateChange: (e) => {
+                        isYtPlaying = (e.data === YT.PlayerState.PLAYING);
+                        if (isYtPlaying) {
+                            document.getElementById('yt-fallback-overlay').classList.add('hidden');
+                            const info = ytPlayer.getVideoData();
+                            if (info && info.title) {
+                                document.getElementById('header-track-name').textContent = info.title;
+                            }
+                        }
+                    },
+                    onError: () => {
+                        document.getElementById('yt-fallback-overlay').classList.remove('hidden');
+                    }
+                }
+            });
+        }
+
+        function startYtTimePolling() {
+            setInterval(() => {
+                if (ytPlayer && isYtReady && ytPlayer.getCurrentTime) {
+                    const c = ytPlayer.getCurrentTime() || 0;
+                    const d = ytPlayer.getDuration() || 0;
+                    const fmt = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+                    document.getElementById('yt-time-display').textContent = `${fmt(c)} / ${fmt(d)}`;
+                }
+            }, 500);
+        }
+
+        // --- HIGH-FPS HTML5 CANVAS TURNTABLE RENDERER ---
+        function renderTurntableCanvas() {
+            const container = document.getElementById('platter-container');
+            if (!container) return;
+            const rawW = container.clientWidth || 320;
+            const rawH = container.clientHeight || 320;
+            const size = Math.max(120, Math.min(rawW, rawH, 360));
+            const dpr = window.devicePixelRatio || 1;
+
+            if (ttCanvas.width !== size * dpr || ttCanvas.height !== size * dpr) {
+                ttCanvas.width = size * dpr;
+                ttCanvas.height = size * dpr;
+                ttCanvas.style.width = `${size}px`;
+                ttCanvas.style.height = `${size}px`;
+            }
+
+            const ctx = ttCtx;
+            ctx.save();
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, size, size);
+
+            const cx = size / 2;
+            const cy = size / 2;
+            const outerR = Math.max(20, size * 0.47);
+            ctx.arc(cx, cy, outerR, 0, Math.PI * 2);
+            ctx.fillStyle = '#0c0e14';
+            ctx.fill();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = isTrackpadScratching || isPointerDragging ? '#f43f5e' : '#1e293b';
+            ctx.stroke();
+
+            // Rotating Stroboscope Dots around Rim
+            const numDots = 72;
+            for (let i = 0; i < numDots; i++) {
+                const a = platterAngle + (i * (Math.PI * 2)) / numDots;
+                const dotR = outerR - 5;
+                const dx = cx + Math.cos(a) * dotR;
+                const dy = cy + Math.sin(a) * dotR;
+                ctx.beginPath();
+                ctx.arc(dx, dy, i % 2 === 0 ? 1.6 : 1.0, 0, Math.PI * 2);
+                ctx.fillStyle = (isTrackpadScratching || isPointerDragging) ? '#fb7185' : '#38bdf8';
+                ctx.fill();
+            }
+
+            // 2. Vinyl Disc Body & Micro-Grooves
+            const vinylR = Math.max(10, outerR - 11);
+            ctx.beginPath();
+            ctx.arc(cx, cy, vinylR, 0, Math.PI * 2);
+            ctx.fillStyle = '#090a0f';
+            ctx.fill();
+
+            ctx.lineWidth = 0.8;
+            for (let r = vinylR * 0.42; r < vinylR - 4; r += 3.5) {
+                ctx.beginPath();
+                ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.045)';
+                ctx.stroke();
+            }
+
+            // Dynamic Light Sheen Cone (Rotates with platter)
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(platterAngle * 0.35);
+            const sheenGrad = ctx.createConicGradient(0, 0, 0);
+            sheenGrad.addColorStop(0, 'rgba(255,255,255,0)');
+            sheenGrad.addColorStop(0.12, 'rgba(255,255,255,0.09)');
+            sheenGrad.addColorStop(0.25, 'rgba(255,255,255,0)');
+            sheenGrad.addColorStop(0.62, 'rgba(6,182,212,0.10)');
+            sheenGrad.addColorStop(0.75, 'rgba(255,255,255,0)');
+            ctx.beginPath();
+            ctx.arc(0, 0, vinylR, 0, Math.PI * 2);
+            ctx.fillStyle = sheenGrad;
+            ctx.fill();
+
+            // 3. White DJ Cue Marker Line on Vinyl
+            ctx.rotate(platterAngle * 0.65);
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = '#ffffff';
+            ctx.shadowBlur = 8;
+            ctx.fillRect(-2, -vinylR + 4, 4, vinylR * 0.28);
+            ctx.shadowBlur = 0;
+
+            // 4. Center Custom Artwork Label ("MELANKOLIA // AI'HAN DJ LAB")
+            const labelR = vinylR * 0.35;
+            const labelGrad = ctx.createLinearGradient(-labelR, -labelR, labelR, labelR);
+            labelGrad.addColorStop(0, '#be123c');
+            labelGrad.addColorStop(0.5, '#1e1b4b');
+            labelGrad.addColorStop(1, '#0e7490');
+
+            ctx.beginPath();
+            ctx.arc(0, 0, labelR, 0, Math.PI * 2);
+            ctx.fillStyle = labelGrad;
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+            ctx.stroke();
+
+            ctx.fillStyle = '#f8fafc';
+            ctx.font = '800 9px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText("MELANKOLIA", 0, -labelR * 0.42);
+            ctx.fillStyle = '#38bdf8';
+            ctx.font = '700 8px "JetBrains Mono", monospace';
+            ctx.fillText("AI'HAN DJ LAB", 0, labelR * 0.52);
+
+            // Center Spindle Hole
+            ctx.beginPath();
+            ctx.arc(0, 0, 5.5, 0, Math.PI * 2);
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fill();
+            ctx.restore();
+
+            // 5. S-Shaped Tonearm & Tracking Stylus Needle
+            const pivotX = size * 0.89;
+            const pivotY = size * 0.14;
+            const armAngle = needleDropped ? 0.44 : 0.12;
+
+            ctx.save();
+            ctx.translate(pivotX, pivotY);
+            ctx.rotate(armAngle);
+
+            // Tonearm Gimbal Base
+            ctx.beginPath();
+            ctx.arc(0, 0, 16, 0, Math.PI * 2);
+            ctx.fillStyle = '#1e293b';
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#64748b';
+            ctx.stroke();
+
+            // Chrome Arm Tube
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.quadraticCurveTo(-12, size * 0.28, 6, size * 0.52);
+            ctx.stroke();
+
+            // Cartridge & Glowing Stylus Tip
+            ctx.translate(6, size * 0.52);
+            ctx.rotate(-0.22);
+            ctx.fillStyle = '#f43f5e';
+            ctx.fillRect(-5, 0, 10, 18);
+            if (needleDropped) {
+                ctx.beginPath();
+                ctx.arc(0, 18, 3.5, 0, Math.PI * 2);
+                ctx.fillStyle = '#22d3ee';
+                ctx.shadowColor = '#22d3ee';
+                ctx.shadowBlur = 10;
+                ctx.fill();
+            }
+            ctx.restore();
+
+            ctx.restore();
+        }
+
+        // --- SCROLLING WAVEFORM & FFT TELEMETRY CANVAS ---
+        function renderTelemetryCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            const w = telCanvas.clientWidth;
+            const h = telCanvas.clientHeight;
+            if (telCanvas.width !== w * dpr || telCanvas.height !== h * dpr) {
+                telCanvas.width = w * dpr;
+                telCanvas.height = h * dpr;
+            }
+
+            const ctx = telCtx;
+            ctx.save();
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, w, h);
+
+            // Background FFT Bars
+            if (analyserNode) {
+                const bins = analyserNode.frequencyBinCount;
+                const data = new Uint8Array(bins);
+                analyserNode.getByteFrequencyData(data);
+                const bw = (w / bins) * 2.2;
+                for (let i = 0; i < bins; i++) {
+                    const mag = (data[i] / 255) * (h * 0.85);
+                    ctx.fillStyle = 'rgba(6, 182, 212, 0.16)';
+                    ctx.fillRect(i * bw, h - mag, bw - 1, mag);
+                }
+            }
+
+            // Center Zero-Line
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, h / 2);
+            ctx.lineTo(w, h / 2);
+            ctx.stroke();
+
+            // Scrolling Scratch Direction & Fader Gate Waveform
+            const stepW = w / WAVE_HISTORY_LEN;
+            for (let i = 0; i < WAVE_HISTORY_LEN; i++) {
+                const item = waveHistory[i];
+                const barH = Math.min(h * 0.45, Math.abs(item.vel) * 95);
+                if (barH < 1) continue;
+
+                const x = i * stepW;
+                if (!item.open) {
+                    // Muted by crossfader cut
+                    ctx.fillStyle = 'rgba(100, 116, 139, 0.35)';
+                } else if (item.vel >= 0) {
+                    // Forward scratch (Cyan)
+                    ctx.fillStyle = '#22d3ee';
+                } else {
+                    // Reverse scratch (Magenta/Crimson)
+                    ctx.fillStyle = '#f43f5e';
+                }
+                ctx.fillRect(x, h / 2 - barH, Math.max(1.5, stepW - 0.5), barH * 2);
+            }
+
+            ctx.restore();
+        }
+
+        // --- MAIN 60FPS PHYSICS & ANIMATION LOOP ---
+        function mainLoop() {
+            const baseRadPerFrame = (rpmMode === 33 ? 33.33 : 45) * (2 * Math.PI) / (60 * 60);
+            const pitchMult = 1 + (ultraPitch / 100);
+
+            if (!isPointerDragging && !isTrackpadScratching) {
+                // Slipmat friction decay
+                angularVelocity *= slipmatInertia;
+                if (Math.abs(angularVelocity) < 0.001) angularVelocity = 0;
+
+                if (motorOn && (isBeatRunning || isYtPlaying)) {
+                    platterAngle += (baseRadPerFrame * pitchMult) + angularVelocity;
+                } else {
+                    platterAngle += angularVelocity;
+                }
+            }
+
+            // Record telemetry history
+            const activeVel = (isTrackpadScratching || isPointerDragging) ? angularVelocity : 0;
+            waveHistory.push({ vel: activeVel, open: faderOpen });
+            if (waveHistory.length > WAVE_HISTORY_LEN) waveHistory.shift();
+
+            // Update Telemetry Readouts
+            const velEl = document.getElementById('vel-telemetry');
+            const dirEl = document.getElementById('dir-telemetry');
+            velEl.textContent = activeVel.toFixed(2);
+            if (Math.abs(activeVel) < 0.005) {
+                dirEl.textContent = motorOn ? "SPIN" : "STOP";
+                dirEl.className = "text-slate-400 font-bold";
+            } else if (activeVel > 0) {
+                dirEl.textContent = "FWD ▶";
+                dirEl.className = "text-cyan-400 font-black";
+            } else {
+                dirEl.textContent = "◀ REV";
+                dirEl.className = "text-rose-400 font-black";
+            }
+
+            renderTurntableCanvas();
+            renderTelemetryCanvas();
+            requestAnimationFrame(mainLoop);
+        }
+
+        // --- MACBOOK TRACKPAD TWO-FINGER GESTURE & POINTER HANDLERS ---
+        window.addEventListener('wheel', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            const overPlatter = document.getElementById('platter-container').contains(e.target);
+            if (!overPlatter && !fullTrackpadMode) return;
+
+            e.preventDefault();
+            unlockAudio();
+
+            // High-DPI Trackpad deltaY / deltaX
+            const rawDelta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+            angularVelocity = rawDelta * 0.0065 * trackpadSensitivity;
+            platterAngle += angularVelocity;
+
+            isTrackpadScratching = true;
+            clearTimeout(trackpadIdleTimer);
+            trackpadIdleTimer = setTimeout(() => {
+                isTrackpadScratching = false;
+            }, 95);
+        }, { passive: false });
+
+        // Direct Mouse / Touch Platter Dragging
+        function getCanvasAngle(clientX, clientY) {
+            const rect = ttCanvas.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            return Math.atan2(clientY - cy, clientX - cx);
+        }
+
+        ttCanvas.addEventListener('pointerdown', (e) => {
+            unlockAudio();
+            isPointerDragging = true;
+            lastDragAngle = getCanvasAngle(e.clientX, e.clientY);
+            angularVelocity = 0;
+            ttCanvas.setPointerCapture(e.pointerId);
+        });
+
+        ttCanvas.addEventListener('pointermove', (e) => {
+            if (!isPointerDragging) return;
+            const curAngle = getCanvasAngle(e.clientX, e.clientY);
+            let diff = curAngle - lastDragAngle;
+            if (diff > Math.PI) diff -= Math.PI * 2;
+            if (diff < -Math.PI) diff += Math.PI * 2;
+
+            platterAngle += diff;
+            angularVelocity = diff * 1.15;
+            lastDragAngle = curAngle;
+        });
+
+        ttCanvas.addEventListener('pointerup', (e) => {
+            isPointerDragging = false;
+            ttCanvas.releasePointerCapture(e.pointerId);
+        });
+
+        // --- UI & KEYBOARD EVENT WIRING ---
+        document.body.addEventListener('pointerdown', unlockAudio, { once: true });
+
+        // Scratch Sample Bank Selection [1, 2, 3, 4]
+        function selectScratchBank(bank) {
+            unlockAudio();
+            currentBank = bank;
+            scratchReadPos = 0;
+            document.querySelectorAll('.bank-btn').forEach(b => {
+                if (b.dataset.bank === bank) {
+                    b.className = "bank-btn py-1.5 rounded-lg font-mono font-extrabold text-[11px] bg-rose-600 text-white border border-rose-400 cursor-pointer shadow";
+                } else {
+                    b.className = "bank-btn py-1.5 rounded-lg font-mono font-extrabold text-[11px] hardware-inset text-slate-300 border border-slate-700 hover:border-slate-500 cursor-pointer";
+                }
+            });
+            showToast(`🎛️ Scratch Bank: ${bank.toUpperCase()}`);
+        }
+        document.querySelectorAll('.bank-btn').forEach(b => b.addEventListener('click', () => selectScratchBank(b.dataset.bank)));
+
+        // Crossfader & Hamster Switch
+        document.getElementById('crossfader').addEventListener('input', (e) => {
+            unlockAudio();
+            crossfaderPos = parseFloat(e.target.value);
+            updateCrossfaderRouting();
+        });
+
+        function toggleHamsterSwitch() {
+            isHamsterMode = !isHamsterMode;
+            const btn = document.getElementById('hamster-btn');
+            btn.textContent = `HAMSTER [H]: ${isHamsterMode ? 'ON' : 'OFF'}`;
+            btn.className = isHamsterMode
+                ? "px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-black border border-amber-300 cursor-pointer"
+                : "px-2 py-0.5 rounded bg-slate-800 border border-slate-600 text-slate-300 hover:border-amber-400 cursor-pointer";
+            updateCrossfaderRouting();
+            showToast(`🐹 Hamster Switch: ${isHamsterMode ? 'TERS FADER AKTİF' : 'NORMAL'}`);
+        }
+        document.getElementById('hamster-btn').addEventListener('click', toggleHamsterSwitch);
+
+        // Spacebar Cut & Crab Buttons
+        const cutBtn = document.getElementById('cut-space-btn');
+        cutBtn.addEventListener('pointerdown', () => { isSpaceCutHeld = true; updateCrossfaderRouting(); });
+        cutBtn.addEventListener('pointerup', () => { isSpaceCutHeld = false; updateCrossfaderRouting(); });
+        cutBtn.addEventListener('pointerleave', () => { isSpaceCutHeld = false; updateCrossfaderRouting(); });
+
+        ['z', 'x', 'c'].forEach(key => {
+            const btn = document.getElementById(`crab-${key}`);
+            btn.addEventListener('pointerdown', () => { crabKeysHeld[key] = true; updateCrossfaderRouting(); });
+            btn.addEventListener('pointerup', () => { crabKeysHeld[key] = false; updateCrossfaderRouting(); });
+            btn.addEventListener('pointerleave', () => { crabKeysHeld[key] = false; updateCrossfaderRouting(); });
+        });
+
+        // Global Battle Keyboard Shortcuts
+        window.addEventListener('keydown', (e) => {
+            if (document.activeElement.tagName === 'INPUT') return;
+            const k = e.key.toLowerCase();
+
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (!isSpaceCutHeld) {
+                    isSpaceCutHeld = true;
+                    cutBtn.classList.add('bg-rose-600');
+                    updateCrossfaderRouting();
+                }
+            } else if (k === 'z' || k === 'x' || k === 'c') {
+                if (!crabKeysHeld[k]) {
+                    crabKeysHeld[k] = true;
+                    document.getElementById(`crab-${k}`).classList.add('bg-amber-500', 'text-slate-950');
+                    updateCrossfaderRouting();
+                }
+            } else if (k === 'h') {
+                toggleHamsterSwitch();
+            } else if (k === '1') selectScratchBank('aahh');
+            else if (k === '2') selectScratchBank('fresh');
+            else if (k === '3') selectScratchBank('boom');
+            else if (k === '4') selectScratchBank('horn');
+            else if (k === 'q' || k === 'w' || k === 'e' || k === 'r') triggerMpcPad(k);
+        });
+
+        window.addEventListener('keyup', (e) => {
+            const k = e.key.toLowerCase();
+            if (e.code === 'Space') {
+                isSpaceCutHeld = false;
+                cutBtn.classList.remove('bg-rose-600');
+                updateCrossfaderRouting();
+            } else if (k === 'z' || k === 'x' || k === 'c') {
+                crabKeysHeld[k] = false;
+                document.getElementById(`crab-${k}`).classList.remove('bg-amber-500', 'text-slate-950');
+                updateCrossfaderRouting();
+            }
+        });
+
+        // Turntable Hardware Toggles (Motor, RPM, Needle)
+        document.getElementById('motor-toggle-btn').addEventListener('click', (e) => {
+            motorOn = !motorOn;
+            e.target.textContent = `MOTOR: ${motorOn ? 'ON' : 'OFF'}`;
+            e.target.className = motorOn
+                ? "px-2.5 py-1.5 bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 font-mono font-bold text-[10px] rounded-lg cursor-pointer"
+                : "px-2.5 py-1.5 hardware-inset border border-slate-700 text-slate-400 font-mono font-bold text-[10px] rounded-lg cursor-pointer";
+        });
+
+        document.getElementById('rpm-toggle-btn').addEventListener('click', (e) => {
+            rpmMode = rpmMode === 33 ? 45 : 33;
+            e.target.textContent = rpmMode === 33 ? "33⅓ RPM" : "45 RPM";
+        });
+
+        document.getElementById('needle-btn').addEventListener('click', (e) => {
+            needleDropped = !needleDropped;
+            playNeedleDropFX(needleDropped);
+            e.target.className = needleDropped
+                ? "px-2.5 py-1.5 hardware-inset border border-amber-500/60 text-amber-400 font-mono font-bold text-[10px] rounded-lg cursor-pointer"
+                : "px-2.5 py-1.5 hardware-inset border border-slate-700 text-slate-500 font-mono font-bold text-[10px] rounded-lg cursor-pointer";
+        });
+
+        // Full Trackpad Mode Toggle
+        document.getElementById('fullscreen-tp-btn').addEventListener('click', (e) => {
+            fullTrackpadMode = !fullTrackpadMode;
+            const span = e.currentTarget.querySelector('span:last-child');
+            span.textContent = `FULL TRACKPAD: ${fullTrackpadMode ? 'ON' : 'PLATTER'}`;
+        });
+
+        // YouTube Controls
+        document.getElementById('load-yt-btn').addEventListener('click', () => {
+            const url = document.getElementById('yt-url-input').value.trim();
+            const match = url.match(/^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/);
+            const vid = (match && match[7].length === 11) ? match[7] : null;
+            if (vid && ytPlayer && isYtReady) {
+                currentVideoId = vid;
+                ytPlayer.loadVideoById(vid);
+                showToast("🎵 YouTube Parçası Yüklendi!");
+            } else {
+                showToast("⚠️ Geçerli YouTube URL'si girin!");
+            }
+        });
+
+        document.getElementById('yt-play-btn').addEventListener('click', () => {
+            unlockAudio();
+            if (ytPlayer && isYtReady) {
+                isYtPlaying ? ytPlayer.pauseVideo() : ytPlayer.playVideo();
+            }
+        });
+
+        document.querySelectorAll('.cue-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                unlockAudio();
+                const sec = parseFloat(btn.dataset.cue);
+                if (ytPlayer && isYtReady) {
+                    ytPlayer.seekTo(sec, true);
+                    ytPlayer.playVideo();
+                }
+                angularVelocity = 0.25;
+            });
+        });
+
+        // Beat Sequencer Controls
+        document.getElementById('beat-toggle-btn').addEventListener('click', () => toggleBeatSequencer());
+        document.getElementById('fallback-start-beat').addEventListener('click', () => toggleBeatSequencer(true));
+
+        document.getElementById('melody-toggle-btn').addEventListener('click', (e) => {
+            isMelodyEnabled = !isMelodyEnabled;
+            e.target.textContent = `UD: ${isMelodyEnabled ? 'AÇIK' : 'KAPALI'}`;
+        });
+
+        document.getElementById('bpm-slider').addEventListener('input', (e) => {
+            beatBpm = parseInt(e.target.value, 10);
+            document.getElementById('bpm-readout').textContent = `${beatBpm} BPM`;
+            if (delayNode && audioCtx) delayNode.delayTime.setTargetAtTime((60 / beatBpm) * 0.75, audioCtx.currentTime, 0.02);
+            if (isBeatRunning) startBeatScheduler();
+        });
+
+        document.getElementById('beat-vol-slider').addEventListener('input', (e) => {
+            document.getElementById('beat-vol-label').textContent = `${Math.round(e.target.value * 100)}%`;
+            updateCrossfaderRouting();
+        });
+
+        // MPC Pad Clicks
+        ['q', 'w', 'e', 'r'].forEach(p => {
+            document.getElementById(`pad-${p}`).addEventListener('click', () => triggerMpcPad(p));
+        });
+
+        // Mixer EQ, Kill Switches, Filter, Delay & Physics Calibration
+        const eqKills = { high: false, mid: false, low: false };
+        ['high', 'mid', 'low'].forEach(band => {
+            const slider = document.getElementById(`eq-${band}`);
+            const valLabel = document.getElementById(`val-${band}`);
+            const killBtn = document.getElementById(`kill-${band}`);
+
+            const applyEq = () => {
+                unlockAudio();
+                const db = eqKills[band] ? -60 : parseFloat(slider.value);
+                valLabel.textContent = eqKills[band] ? 'KILL' : `${db > 0 ? '+' : ''}${db}dB`;
+                const node = band === 'high' ? eqHigh : band === 'mid' ? eqMid : eqLow;
+                if (node) node.gain.setTargetAtTime(db, audioCtx.currentTime, 0.015);
+            };
+
+            slider.addEventListener('input', applyEq);
+            killBtn.addEventListener('click', () => {
+                eqKills[band] = !eqKills[band];
+                killBtn.classList.toggle('kill-active', eqKills[band]);
+                applyEq();
+            });
+        });
+
+        document.getElementById('filter-slider').addEventListener('input', (e) => {
+            unlockAudio();
+            const v = parseFloat(e.target.value);
+            const readout = document.getElementById('filter-readout');
+            if (Math.abs(v) < 0.06) {
+                colorFilter.type = 'allpass';
+                readout.textContent = 'FLAT';
+            } else if (v < 0) {
+                colorFilter.type = 'lowpass';
+                const f = 180 + (1 + v) * 3800;
+                colorFilter.frequency.setTargetAtTime(f, audioCtx.currentTime, 0.02);
+                colorFilter.Q.value = 4.2;
+                readout.textContent = `LPF ${Math.round(f)}`;
+            } else {
+                colorFilter.type = 'highpass';
+                const f = 140 + v * 4600;
+                colorFilter.frequency.setTargetAtTime(f, audioCtx.currentTime, 0.02);
+                colorFilter.Q.value = 4.2;
+                readout.textContent = `HPF ${Math.round(f)}`;
+            }
+        });
+
+        document.getElementById('delay-slider').addEventListener('input', (e) => {
+            unlockAudio();
+            const v = parseFloat(e.target.value);
+            document.getElementById('delay-readout').textContent = `${Math.round(v * 100)}%`;
+            if (delayWet) delayWet.gain.setTargetAtTime(v, audioCtx.currentTime, 0.02);
+        });
+
+        document.getElementById('sens-slider').addEventListener('input', (e) => {
+            trackpadSensitivity = parseFloat(e.target.value);
+            document.getElementById('sens-readout').textContent = `${trackpadSensitivity.toFixed(1)}x`;
+        });
+
+        document.getElementById('torque-slider').addEventListener('input', (e) => {
+            slipmatInertia = parseFloat(e.target.value);
+            document.getElementById('torque-readout').textContent = `${Math.round(slipmatInertia * 100)}%`;
+        });
+
+        document.getElementById('pitch-slider').addEventListener('input', (e) => {
+            ultraPitch = parseFloat(e.target.value);
+            document.getElementById('pitch-readout').textContent = `${ultraPitch > 0 ? '+' : ''}${ultraPitch.toFixed(1)}%`;
+            if (ytPlayer && isYtReady && ytPlayer.setPlaybackRate) ytPlayer.setPlaybackRate(1 + ultraPitch / 100);
+            if (isBeatRunning) startBeatScheduler();
+        });
+
+        document.getElementById('pitch-reset-btn').addEventListener('click', () => {
+            ultraPitch = 0;
+            document.getElementById('pitch-slider').value = 0;
+            document.getElementById('pitch-readout').textContent = '0.0%';
+            if (ytPlayer && isYtReady && ytPlayer.setPlaybackRate) ytPlayer.setPlaybackRate(1.0);
+            if (isBeatRunning) startBeatScheduler();
+        });
+
+        // Boot
+        window.onload = () => {
+            buildStepLeds();
+            mainLoop();
+        };
+    </script>
+</body>
+</html>
